@@ -1,6 +1,27 @@
 #include <efi.h>
 #include <efilib.h>
- 
+
+// void cpuid(int32_t *peax, int32_t *pebx, int32_t *pecx, int32_t *pedx)
+// {
+//     __asm(
+//         "CPUID"
+//         : "=a"(*peax), "=b"(*pebx), "=c"(*pecx), "=d"(*pedx)
+//         : "a"(*peax)
+//     );
+// }
+
+void draw_menu() {
+    ST->ConOut->OutputString(ST->ConOut, L"╔══════════════════════════════════════════╗\r\n");
+    ST->ConOut->OutputString(ST->ConOut, L"║ Only Ring-0   --   Boot Menu             ║\r\n");
+    ST->ConOut->OutputString(ST->ConOut, L"╠══════════════════════════════════════════╣\r\n");
+    ST->ConOut->OutputString(ST->ConOut, L"║ 1. Start Operating System                ║\r\n");
+    ST->ConOut->OutputString(ST->ConOut, L"║                                          ║\r\n");
+    ST->ConOut->OutputString(ST->ConOut, L"║ 2. Shut-Down                             ║\r\n");
+    ST->ConOut->OutputString(ST->ConOut, L"║                                          ║\r\n");
+    ST->ConOut->OutputString(ST->ConOut, L"║ 3. Reboot                                ║\r\n");
+    ST->ConOut->OutputString(ST->ConOut, L"╚══════════════════════════════════════════╝\r\n");
+}
+
 EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 {
     EFI_STATUS Status;
@@ -15,8 +36,11 @@ EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
     if (EFI_ERROR(Status))
         return Status;
  
-    ST->ConOut->OutputString(ST->ConOut, L"Boot Loading...\r\n"); // EFI Applications use Unicode and CRLF, a la Windows
-    
+    ST->ConOut->OutputString(ST->ConOut, L"Only Ring-0 (oR0) Boot Manager.\r\nCopyright (C) oR0 Project 2022.\r\n\r\n");
+
+    // Draw the menu
+    draw_menu();
+
     /* Now wait for a keystroke before continuing, otherwise your
        message will flash off the screen before you see it.
  
