@@ -1,16 +1,12 @@
-C = gcc
-ASM = nasm
-CPP = g++
-LINK = ld
-OCP = objcopy
+# Bootloader makefile
+# x86_64-w64-mingw32-gcc
 
-DD = dd
-PART = parted
-FORMAT = mformat
-MKISO = xorriso
-EMU = qemu-system-x86_64
+C =					x86_64-w64-mingw32-gcc
+LINK =				x86_64-w64-mingw32-ld
+OCP =				objcopy
 
-ODMP = objdump
+EMU =				qemu-system-x86_64
+
 
 SRC = src/
 INC = inc/
@@ -19,38 +15,32 @@ BIN = bin/
 OUT = iso/
 
 
-C_FLAGS =			-c 											\
-					-Wall										\
-					-Wno-pointer-sign							\
+C_FLAGS =			-I/usr/include/efi							\
+					-I/usr/include/efi/x86_64					\
+					-I/usr/include/efi/protocol					\
+					-ffreestanding								\
 					-fno-stack-protector						\
-					-fpic										\
-					-fshort-wchar								\
-					-mno-red-zone								\
 					-fno-merge-constants						\
 					-fno-strict-aliasing						\
-					-maccumulate-outgoing-args					\
-					-ffreestanding								\
-					-I dep/gnu-efi/inc							\
+					-fshort-wchar								\
+					-fpic										\
+					-mno-red-zone								\
+					-Wno-pointer-sign							\
+					-Wall										\
 					-DEFI_APP									\
 					-DBOOT_LOADER								\
 					-DCONFIG_x86_64								\
-					-DEFI_FUNCTION_WRAPPER
+					-DEFI_FUNCTION_WRAPPER						\
+					-c
 C_RELEASE_FLAGS =	-O2
 C_DEBUG_FLAGS =		-O0											\
-					-ggdb3										\
 					-DDEBUG										\
 					-DEFI_DEBUG=1								\
 					-g
 LINK_FLAGS =		-nostdlib									\
-					-znocombreloc								\
 					-shared										\
 					-Bsymbolic									\
-					-L dep/gnu-efi/x86_64/lib					\
-					-L dep/gnu-efi/x86_64/gnuefi				\
-					-T dep/gnu-efi/gnuefi/elf_x86_64_efi.lds	\
-					dep/gnu-efi/x86_64/gnuefi/crt0-efi-x86_64.o	\
-					-lefi										\
-					-lgnuefi
+					--subsystem=10
 LINK_DEBUG_FLAGS =	-g
 OCP_FLAGS =			-j .text									\
 					-j .sdata									\
@@ -62,65 +52,43 @@ OCP_FLAGS =			-j .text									\
 					-j .reloc									\
 					--target=efi-app-x86_64						\
 					--subsystem=10
-OCP_DEBUG_FLAGS =	-j .debug_info								\
-					-j .debug_abbrev							\
-					-j .debug_loc								\
-					-j .debug_aranges							\
-					-j .debug_line								\
-					-j .debug_macinfo							\
-					-j .debug_str								\
-					-j .debug_line_str
 
-DD_FLAGS =			bs=512
-PART_FLAGS =		-s											\
-					-a minimal
-FORMAT_FLAGS =		-h 32										\
-					-t 32										\
-					-n 64										\
-					-c 1
-EMU_FLAGS =			-drive if=pflash,format=raw,unit=0,file=dep/ovmf/OVMF_CODE.fd,readonly=on					\
-					-drive if=pflash,format=raw,unit=1,file=dep/ovmf/OVMF_VARS.fd								\
-					-cpu host																					\
-					-net none																					\
-					-enable-kvm																					\
-					-serial /dev/stdout																			\
-					-monitor stdio																				\
-					-m 1G
-#					-nodefaults
-#					-nographic
-
-ODMP_FLAGS =		-xDSClge									\
-					--all-headers
+EMU_FLAGS =			-bios /usr/share/edk2-ovmf/x64/OVMF.fd		\
+					-enable-kvm									\
+					-serial /dev/stdout							\
+					-monitor stdio								\
+					-net none									\
+					-cpu host									\
+					-smp 2
 
 
-default: build
+default: bootman
 clean:
+	rm $(INT)* -f
 	rm $(BIN)* -f
 	rm $(OUT)* -f
 
 
-build:
-	$(C) $(C_FLAGS) $(C_RELEASE_FLAGS) -o $(INT)main.o $(SRC)main.c
-	$(LINK) $(LINK_FLAGS) -o $(BIN)main.so $(INT)main.o
-	$(OCP) $(OCP_FLAGS) $(BIN)main.so $(BIN)main.efi
+bootman:
+	$(C) $(C_FLAGS) -o $(INT)main.o $(SRC)main.c
+	$(C) $(C_FLAGS) -o $(INT)data.o $(SRC)lib.c
+	#$(LINK) $(LINK_FLAGS) -e efi_main -o $(BIN)main.so $(INT)main.o $(INT)data.o
+	#$(OCP) $(OCP_FLAGS) $(BIN)main.so $(BIN)main.efi
+	$(C) -v -Wl,-v -nostdlib -Wl,-dll -shared -Wl,--subsystem,10 -e efi_main -o bin/BOOTX64.EFI int/main.o int/data.o
 
-debug_build: build	# build normally before debug build to compare spec files
-	$(C) $(C_FLAGS) $(C_DEBUG_FLAGS) -o $(INT)main.o $(SRC)main.c
-	$(LINK) $(LINK_FLAGS) $(LINK_DEBUG_FLAGS) -o $(BIN)main.so $(INT)main.o
-	$(OCP) $(OCP_FLAGS) $(OCP_DEBUG_FLAGS) $(BIN)main.so $(BIN)main_debug.efi
-	$(ODMP) $(ODMP_FLAGS) $(BIN)main_debug.efi > $(BIN)main_debug.efi.spec
-	$(ODMP) $(ODMP_FLAGS) $(BIN)main.efi > $(BIN)main.efi.spec
 
-iso: clean build
-	$(DD) $(DD_FLAGS) if=/dev/zero of=$(BIN)uefi.img count=93750
-	$(PART) $(PART_FLAGS) $(BIN)uefi.img mklabel gpt
-	$(PART) $(PART_FLAGS) $(BIN)uefi.img mkpart EFI FAT16 2048s 93716s
-	$(PART) $(PART_FLAGS) $(BIN)uefi.img toggle 1 boot
-	$(DD) $(DD_FLAGS) if=/dev/zero of=$(INT)tmp.img count=91669
-	$(FORMAT) $(FORMAT_FLAGS) -i $(INT)tmp.img
-	mcopy -i $(INT)tmp.img $(BIN)main.efi ::
-	$(DD) $(DD_FLAGS) if=$(INT)tmp.img of=$(BIN)uefi.img seek=2048 conv=notrunc
+iso: clean bootman
+	# create gpt image
+	dd if=/dev/zero of=$(BIN)boot.img bs=1k count=1440
+	mformat -i $(BIN)boot.img -f 1440 ::
+	mmd -i $(BIN)boot.img ::/EFI
+	mmd -i $(BIN)boot.img ::/EFI/BOOT
+	mcopy -i $(BIN)boot.img $(BIN)main.efi ::/EFI/BOOT
+	# create iso
+	cp $(BIN)boot.img iso
+	xorriso -as mkisofs -R -f -e boot.img -no-emul-boot -o iso/boot.iso iso
+	rm iso/boot.img
 
 
 run: iso
-	$(EMU) $(EMU_FLAGS) -drive format=raw,file=$(BIN)uefi.img,if=ide
+	$(EMU) $(EMU_FLAGS) -drive format=raw,file=iso/boot.iso
