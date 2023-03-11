@@ -1,76 +1,76 @@
 # Clean Boot Technical SPEC
 ## Memory Map
-This memory map shows how physical memory looks after Pure64 is finished.
+this memory map shows how physical memory looks after boot
 
-<table border="1" cellpadding="2" cellspacing="0">
-<tr><th>Start Address</th><th>End Address</th><th>Size</th><th>Description</th></tr>
-<tr><td>0x0000000000000000</td><td>0x0000000000000FFF</td><td>4 KiB</td><td>IDT - 256 descriptors (each descriptor is 16 bytes)</td></tr>
-<tr><td>0x0000000000001000</td><td>0x0000000000001FFF</td><td>4 KiB</td><td>GDT - 256 descriptors (each descriptor is 16 bytes)</td></tr>
-<tr><td>0x0000000000002000</td><td>0x0000000000002FFF</td><td>4 KiB</td><td>PML4 - 512 entries, first entry points to PDP at 0x3000</td></tr>
-<tr><td>0x0000000000003000</td><td>0x0000000000003FFF</td><td>4 KiB</td><td>PDP Low - 512 entries</td></tr>
-<tr><td>0x0000000000004000</td><td>0x0000000000004FFF</td><td>4 KiB</td><td>PDP High - 512 entries</td></tr>
-<tr><td>0x0000000000005000</td><td>0x0000000000007FFF</td><td>12 KiB</td><td>Pure64 Data</td></tr>
-<tr><td>0x0000000000008000</td><td>0x000000000000FFFF</td><td>32 KiB</td><td>Pure64 - After the OS is loaded and running this memory is free again</td></tr>
-<tr><td>0x0000000000010000</td><td>0x000000000001FFFF</td><td>64 KiB</td><td>PD Low - Entries are 8 bytes per 2MiB page</td></tr>
-<tr><td>0x0000000000020000</td><td>0x000000000005FFFF</td><td>256 KiB</td><td>PD High - Entries are 8 bytes per 2MiB page</td></tr>
-<tr><td>0x0000000000060000</td><td>0x000000000009FFFF</td><td>256 KiB</td><td>Free</td></tr>
-<tr><td>0x00000000000A0000</td><td>0x00000000000FFFFF</td><td>384 KiB</td><td>ROM Area</td></tr>
-<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>VGA mem at 0xA0000 (128 KiB) Color text starts at 0xB8000</td></tr>
-<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Video BIOS at 0xC0000 (64 KiB)</td></tr>
-<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Motherboard BIOS at F0000 (64 KiB)</td></tr>
-<tr><td>0x0000000000100000</td><td>0xFFFFFFFFFFFFFFFF</td><td>1+ MiB</td><td>The software payload is loaded here</td></tr>
-</table>
+| Start Address      | End Address        | Size    | Description                                                        |
+|--------------------|--------------------|---------|--------------------------------------------------------------------|
+| 0x0000000000000000 | 0x0000000000000FFF | 4   KiB | IDT -        256 descriptors (each descriptor is 16 bytes)         |
+| 0x0000000000001000 | 0x0000000000001FFF | 4   KiB | GDT -        256 descriptors (each descriptor is 16 bytes)         |
+| 0x0000000000002000 | 0x0000000000002FFF | 4   KiB | PML4 -       512 entries     (first entry points to PDP at 0x3000) |
+| 0x0000000000003000 | 0x0000000000003FFF | 4   KiB | PDP low -    512 entries                                           |
+| 0x0000000000004000 | 0x0000000000004FFF | 4   KiB | PDP high -   512 entries                                           |
+| 0x0000000000005000 | 0x0000000000007FFF | 12  KiB | clean boot data                                                    |
+| 0x0000000000008000 | 0x000000000000FFFF | 32  KiB | clean boot - when the OS is running this memory is free            |
+| 0x0000000000010000 | 0x000000000001FFFF | 64  KiB | PD low -     entries are 8 bytes per 2MiB page                     |
+| 0x0000000000020000 | 0x000000000005FFFF | 256 KiB | PD high -    entries are 8 bytes per 2MiB page                     |
+| 0x0000000000060000 | 0x000000000009FFFF | 256 KiB | free                                                               |
+| 0x00000000000A0000 | 0x00000000000FFFFF | 384 KiB | ROM                                                                |
+| ROM + 0x0000000000 | ROM + 0x0000018000 | 128 KiB | VGA                                                                |
+| ROM + 0x0000018000 | ROM + 0x0000020000 | 8   KiB | VGA color text                                                     |
+| ROM + 0x0000020000 | ROM + 0x0000030000 | 64  KiB | BIOS video                                                         |
+| ROM + 0x0000050000 | ROM + 0x0000060000 | 64  KiB | motherboard BIOS                                                   |
+| 0x0000000000100000 | 0xFFFFFFFFFFFFFFFF | ~16 EiB | free                                                               |
 
-When creating your Operating System or Demo you can use the sections marked free, however it is the safest to use memory above 1 MiB.
+when creating your operating system you can use any memory area marked as free, however it is recommended that the memory at `0x0000000000100000` is used
 
 
 ## Information Table
-Pure64 stores an information table in memory that contains various pieces of data about the computer before it passes control over to the software you want it to load.
+clean boot stores an information table in memory that contains various pieces of data about the computer before it passes control over to the kernel
+the information table is located at `0x0000000000005000` and ends at `0x00000000000057FF` (2 KiB)
 
-The Pure64 information table is located at `0x0000000000005000` and ends at `0x00000000000057FF` (2048 bytes).
+| Address | Size   | Name          | Description                                                                 |
+|---------|--------|---------------|-----------------------------------------------------------------------------|
+| 0x5000  | 64-bit | ACPI          | address of the ACPI tables                                                  |
+| 0x5008  | 32-bit | BSP_ID        | APIC ID of the BSP                                                          |
+| 0x5010  | 16-bit | CPU_SPEED     | clock speed of the CPUs in Mega Hertz (MHz)                                 |
+| 0x5012  | 16-bit | CORES_ACTIVE  | the number of active CPU cores                                              |
+| 0x5014  | 16-bit | CORES_DETECT  | the number of detected CPU cores                                            |
+| 0x5016  | 10  B  | reserved      |                                                                             |
+| 0x5020  | 32-bit | RAM_SIZE      | amount of system RAM in Mebibytes (MiB)                                     |
+| 0x5024  | 12  B  | reserved      |                                                                             |
+| 0x5030  | 8-bit  | IO_APIC_COUNT | number of IO-APICs                                                          |
+| 0x5031  | 15  B  | reserved      |                                                                             |
+| 0x5040  | 64-bit | HPET          | base memory address for the High Precision Event Timer                      |
+| 0x5048  | 24  B  | reserved      |                                                                             |
+| 0x5060  | 64-bit | LOCAL_APIC    | local APIC address                                                          |
+| 0x5068  | 24  B  | IO_APIC       | IO-APIC addresses (up to 3 entries, based on IO_APIC_COUNT)                 |
+| 0x5080  | 32-bit | VIDEO_BASE    | video memory base (in graphics mode)                                        |
+| 0x5084  | 16-bit | VIDEO_WIDTH   | video width                                                                 |
+| 0x5086  | 16-bit | VIDEO_HEIGHT  | video height                                                                |
+| 0x5088  | 8-bit  | VIDEO_DEPTH   | video color depth                                                           |
+| 0x5089  | 119 B  | reserved      |                                                                             |
+| 0x5100  | 768 B  | APIC_ID       | APIC ID's for the valid CPU cores (up to 768 entries based on CORES_ACTIVE) |
+| 0x5400  | 1 KiB  | reserved      |                                                                             |
 
-<table border="1" cellpadding="2" cellspacing="0">
-<tr><th>Memory Address</th><th>Variable Size</th><th>Name</th><th>Description</th></tr>
-<tr><td>0x5000</td><td>64-bit</td><td>ACPI</td><td>Address of the ACPI tables</td></tr>
-<tr><td>0x5008</td><td>32-bit</td><td>BSP_ID</td><td>APIC ID of the BSP</td></tr>
-<tr><td>0x5010</td><td>16-bit</td><td>CPUSPEED</td><td>Speed of the CPUs in MegaHertz (<a href="http://en.wikipedia.org/wiki/Hertz">MHz</a>)</td></tr>
-<tr><td>0x5012</td><td>16-bit</td><td>CORES_ACTIVE</td><td>The number of CPU cores that were activated in the system</td></tr>
-<tr><td>0x5014</td><td>16-bit</td><td>CORES_DETECT</td><td>The number of CPU cores that were detected in the system</td></tr>
-<tr><td>0x5016 - 0x501F</td><td>&nbsp;</td><td>&nbsp;</td><td>For future use</td></tr>
-<tr><td>0x5020</td><td>32-bit</td><td>RAMAMOUNT</td><td>Amount of system RAM in Mebibytes (<a href="http://en.wikipedia.org/wiki/Mebibyte">MiB</a>)</td></tr>
-<tr><td>0x5022 - 0x502F</td><td>&nbsp;</td><td>&nbsp;</td><td>For future use</td></tr>
-<tr><td>0x5030</td><td>8-bit</td><td>IOAPIC_COUNT</td><td>Number of IO-APICs in the system</td></tr>
-<tr><td>0x5031 - 0x503F</td><td>&nbsp;</td><td>&nbsp;</td><td>For future use</td></tr>
-<tr><td>0x5040</td><td>64-bit</td><td>HPET</td><td>Base memory address for the High Precision Event Timer</td></tr>
-<tr><td>0x5048 - 0x505F</td><td>&nbsp;</td><td>&nbsp;</td><td>For future use</td></tr>
-<tr><td>0x5060</td><td>64-bit</td><td>LAPIC</td><td>Local APIC address</td></tr>
-<tr><td>0x5068 - 0x507F</td><td>64-bit</td><td>IOAPIC</td><td>IO-APIC addresses (based on IOAPIC_COUNT)</td></tr>
-<tr><td>0x5080</td><td>32-bit</td><td>VIDEO_BASE</td><td>Base memory for video (if graphics mode set)</td></tr>
-<tr><td>0x5084</td><td>16-bit</td><td>VIDEO_X</td><td>X resolution</td></tr>
-<tr><td>0x5086</td><td>16-bit</td><td>VIDEO_Y</td><td>Y resolution</td></tr>
-<tr><td>0x5088</td><td>8-bit</td><td>VIDEO_DEPTH</td><td>Color depth</td></tr>
-<tr><td>0x5089 - 0x50FF</td><td>&nbsp;</td><td>&nbsp;</td><td>For future use</td></tr>
-<tr><td>0x5100...</td><td>8-bit</td><td>APIC_ID</td><td>APIC ID's for valid CPU cores (based on CORES_ACTIVE)</td></tr>
-</table>
+a copy of the E820 system memory map is stored at memory address `0x0000000000006000`
+each record is 32 bytes and the map is terminated with a blank record
+for more information on the E820 Memory Map: <a href="http://wiki.osdev.org/Detecting_Memory_%28x86%29">OSDev wiki on E820</a>
 
-A copy of the E820 System Memory Map is stored at memory address `0x0000000000006000`. Each E820 record is 32 bytes in length and the memory map is terminated by a blank record.
-<table border="1" cellpadding="2" cellspacing="0">
-<tr><th>Variable</th><th>Variable Size</th><th>Description</th></tr>
-<tr><td>Starting Address</td><td>64-bit</td><td>The starting address for this record</td></tr>
-<tr><td>Length</td><td>64-bit</td><td>The length of memory for this record</td></tr>
-<tr><td>Memory Type</td><td>32-bit</td><td>Type 1 is usable memory, Type 2 is not usable</td></tr>
-<tr><td>Extended Attributes</td><td>32-bit</td><td>ACPI 3.0 Extended Attributes bitfield</td></tr>
-<tr><td>Padding</td><td>64-bit</td><td>Padding for 32-byte alignment</td></tr>
-</table>
-For more information on the E820 Memory Map: <a href="http://wiki.osdev.org/Detecting_Memory_%28x86%29">OSDev wiki on E820</a>
+| Variable            | Variable Size | Description                                       |
+|---------------------|---------------|---------------------------------------------------|
+| starting address    | 64-bit        | the memory address                                |
+| length              | 64-bit        | the length of the allocated memory at the address |
+| memory type         | 32-bit        | 1 = usable_memory, 2 = non_usable_memory          |
+| extended attributes | 32-bit        | ACPI 3.0 extended attributes bitfield             |
+| padding             | 32-bit        | padding for 32-byte alignment                     |
 
 
 ## Memory-Type Range Registers (MTRR) Notes
-| Address                 | Size      |
-|-------------------------|-----------|
-| Base 0x0000000000000000 | 0     MiB |
-| Base 0x0000000080000000 | 2048  MiB |
-| Base 0x0000000100000000 | 4096  MiB |
-| Mask 0x0000000F80000000 | 2048  MiB |
-| Mask 0x0000000FC0000000 | 1024  MiB |
-| Mask 0x0000000FFC000000 | 64    MiB |
+| Address                   | Size      |
+|---------------------------|-----------|
+| Base + 0x0000000000000000 | 0     MiB |
+| Base + 0x0000000080000000 | 2048  MiB |
+| Base + 0x0000000100000000 | 4096  MiB |
+| Mask + 0x0000000F80000000 | 2048  MiB |
+| Mask + 0x0000000FC0000000 | 1024  MiB |
+| Mask + 0x0000000FFC000000 | 64    MiB |
