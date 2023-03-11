@@ -1,6 +1,5 @@
 # Clean Boot Technical SPEC
 ## Memory Map
-
 This memory map shows how physical memory looks after Pure64 is finished.
 
 <table border="1" cellpadding="2" cellspacing="0">
@@ -26,7 +25,6 @@ When creating your Operating System or Demo you can use the sections marked free
 
 
 ## Information Table
-
 Pure64 stores an information table in memory that contains various pieces of data about the computer before it passes control over to the software you want it to load.
 
 The Pure64 information table is located at `0x0000000000005000` and ends at `0x00000000000057FF` (2048 bytes).
@@ -65,3 +63,14 @@ A copy of the E820 System Memory Map is stored at memory address `0x000000000000
 <tr><td>Padding</td><td>64-bit</td><td>Padding for 32-byte alignment</td></tr>
 </table>
 For more information on the E820 Memory Map: <a href="http://wiki.osdev.org/Detecting_Memory_%28x86%29">OSDev wiki on E820</a>
+
+
+## Memory-Type Range Registers (MTRR) Notes
+| Address                 | Size      |
+|-------------------------|-----------|
+| Base 0x0000000000000000 | 0     MiB |
+| Base 0x0000000080000000 | 2048  MiB |
+| Base 0x0000000100000000 | 4096  MiB |
+| Mask 0x0000000F80000000 | 2048  MiB |
+| Mask 0x0000000FC0000000 | 1024  MiB |
+| Mask 0x0000000FFC000000 | 64    MiB |
