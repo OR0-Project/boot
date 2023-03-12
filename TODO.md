@@ -1,7 +1,6 @@
 # TODO:
 ## project
 * change all occurrences of email@address.com
-* edit NOTE.md
 
 ## code
 > ### undefined references
@@ -11,6 +10,8 @@
 > * SYS64_CODE_SEL                      @smp_ap.asm:93
 > * cpu_activated                       @smp_ap.asm:156
 > * os_LocalAPICAddress                 @cpu.asm:86, @smp_ap.asm:135, @smp_ap.asm:147, @smp_ap.asm:158
+> * gdt64                               @clean_boot.asm:140, @clean_boot.asm:142
+> * gdt64_end                           @clean_boot.asm:142
 
 > ### commented
 > * variable sized address ranges       @cpu.asm:37
