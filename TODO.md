@@ -1,6 +1,18 @@
 # TODO:
 ## project
+* acpi.asm
+* pic.ams
+* smp.asm
+* interrupt.asm
+* sysvar.asm
+* MakeFile
+* test kernel
+* test
+* 
 * change all occurrences of email@address.com
+* read: https://wiki.osdev.org/Memory_Map_(x86)
+* document @clean_boot.asm:265
+* document all the boot code
 
 ## code
 > ### undefined references
@@ -17,3 +29,8 @@
 > * variable sized address ranges       @cpu.asm:37
 > * global paging extensions            @cpu.asm:65
 > * local vector table (LVT)            @cpu.asm:109
+
+> ### TODOs
+> * TODO: fix this as it is a terrible hack (uefi memory map)                   @clean_boot.asm:320
+> * TODO: this isn't the exact math but good enough (page directory table)      @clean_boot.asm:331
+> * serial boot message                                                         @clean_boot.asm:533

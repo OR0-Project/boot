@@ -1,15 +1,15 @@
-; ///////////////////////////////////////////////////////////////////////////
-; // File:     Name:        cpu.asm                                        //
-; //           Language:    x86_64 NASM assembly                           //
-; //                                                                       //
-; // Details:  this file contains the code responsible for initializing    //
-; //           the CPU                                                     //
-; //                                                                       //
-; // Author:   Name:        Marijn Verschuren                              //
-; //           Email:       email@address.com                              //
-; //                                                                       //
-; // Date:     2023-03-11                                                  //
-; ///////////////////////////////////////////////////////////////////////////
+; //////////////////////////////////////////////////////////////////////////////
+; // File:     Name:        cpu.asm                                           //
+; //           Language:    x86_64 NASM assembly                              //
+; //                                                                          //
+; // Details:  this file contains the code responsible for initializing       //
+; //           the CPU                                                        //
+; //                                                                          //
+; // Author:   Name:        Marijn Verschuren                                 //
+; //           Email:       email@address.com                                 //
+; //                                                                          //
+; // Date:     2023-03-11                                                     //
+; //////////////////////////////////////////////////////////////////////////////
 
 
 init_cpu:

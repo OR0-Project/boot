@@ -1,16 +1,16 @@
-; ///////////////////////////////////////////////////////////////////////////
-; // File:     Name:        smp_ap.asm                                     //
-; //           Language:    x86_64 NASM assembly                           //
-; //                                                                       //
-; // Details:  this file contains the code responsible for initializing    //
-; //           the symmetric multiprocessing system for the                //
-; //           application processor                                       //
-; //                                                                       //
-; // Author:   Name:        Marijn Verschuren                              //
-; //           Email:       email@address.com                              //
-; //                                                                       //
-; // Date:     2023-03-10                                                  //
-; ///////////////////////////////////////////////////////////////////////////
+; //////////////////////////////////////////////////////////////////////////////
+; // File:     Name:        smp_ap.asm                                        //
+; //           Language:    x86_64 NASM assembly                              //
+; //                                                                          //
+; // Details:  this file contains the code responsible for initializing       //
+; //           the symmetric multiprocessing system for the                   //
+; //           application processor                                          //
+; //                                                                          //
+; // Author:   Name:        Marijn Verschuren                                 //
+; //           Email:       email@address.com                                 //
+; //                                                                          //
+; // Date:     2023-03-10                                                     //
+; //////////////////////////////////////////////////////////////////////////////
 
 
 

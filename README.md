@@ -1,5 +1,5 @@
-# Clean Boot
-clean boot is a bootloader that initializes the computer into a 64-bit state using a minimal amount of code.
+# CleanBoot
+cleanboot is a bootloader that initializes the computer into a 64-bit state using a minimal amount of code.
 it contains is as little redundant or outdated code as possible.
 
 
