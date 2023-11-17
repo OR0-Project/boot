@@ -13,16 +13,16 @@
 
 
 ; defines
-%define VBE_BIT_DEPTH 32    ; 24
-%define VBE_X_RES 800       ; 1024
-%define VBE_Y_RES 600       ; 768
+VBE_BIT_DEPTH       equ 32          ; 24
+VBE_X_RES           equ 800         ; 1024
+VBE_Y_RES           equ 600         ; 768
 
-%define DAP_SECTORS 64
-%define DAP_START_SECTOR 16
-%define DAP_ADDRESS 0x8000
-%define DAP_SEGMENT 0x0000
+DAP_SECTORS         equ 64
+DAP_START_SECTOR    equ 16
+DAP_ADDRESS         equ 0x8000
+DAP_SEGMENT         equ 0x0000
 
-%define DAP_SIGNATURE 0x424F4F54
+DAP_SIGNATURE       equ 0x424F4F54
 
 
 [BITS 16]

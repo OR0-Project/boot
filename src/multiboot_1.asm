@@ -2,8 +2,8 @@
 ; // File:     Name:        multiboot_1.asm                                   //
 ; //           Language:    x86_64 NASM assembly                              //
 ; //                                                                          //
-; // Details:  this file contains mbr (master boot record) which is booted    //
-; //           when running in legacy mode                                    //
+; // Details:  this file contains the multiboot header (multiboot 1)          //
+; //           this code may be loaded from another bootloader like GRUB      //
 ; //                                                                          //
 ; // Author:   Name:        Marijn Verschuren                                 //
 ; //           Email:       email@address.com                                 //
