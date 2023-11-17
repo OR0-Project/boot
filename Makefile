@@ -1,5 +1,5 @@
 
-default:
-	nasm src/clean_boot.asm
 
 clean:
+	rm bin/*
+	rm int/*
