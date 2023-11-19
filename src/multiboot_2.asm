@@ -1,8 +1,8 @@
 ; //////////////////////////////////////////////////////////////////////////////
-; // File:     Name:        multiboot_1.asm                                   //
+; // File:     Name:        multiboot_2.asm                                   //
 ; //           Language:    x86_64 NASM assembly                              //
 ; //                                                                          //
-; // Details:  this file contains the multiboot header (multiboot 1)          //
+; // Details:  this file contains the multiboot header (multiboot 2)          //
 ; //           this code may be loaded from another bootloader like GRUB      //
 ; //                                                                          //
 ; // Author:   Name:        Marijn Verschuren                                 //
@@ -21,9 +21,9 @@ ARCHITECHTURE   equ 0               ; TODO
 HEADER_LENGTH   equ multiboot_header_end - multiboot_header_start
 CHECKSUM        equ 0x100000000 - (MAGIC + ARCHITECHTURE + HEADER_LENGTH)
 
-VBE_BIT_DEPTH       equ 32          ; 24
-VBE_X_RES           equ 800         ; 1024
-VBE_Y_RES           equ 600         ; 768
+VBE_BIT_DEPTH   equ 32              ; 24
+VBE_X_RES       equ 800             ; 1024
+VBE_Y_RES       equ 600             ; 768
 
 _start:
 	xor eax, eax                    ; clear eax
@@ -60,5 +60,4 @@ multiboot_entry:
 	cmp eax, 0x36D76289             ; magic number
 	jne halt
 halt:
-	hlt
-	jmp halt
+	jmp $
